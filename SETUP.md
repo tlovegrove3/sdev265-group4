@@ -165,15 +165,24 @@ git commit
 ## Initial Project Structure
 ```
 sdev265-group4/
-├── accounts/          # User authentication
-├── events/            # Event management
-├── config/            # Django settings
-├── templates/         # HTML templates
-├── static/            # CSS, JS, images
-├── manage.py
-├── run.bat           # Quick start (Windows)
-├── pyproject.toml    # Dependencies
-└── .gitmessage.txt   # Commit template
+├── accounts/              # User authentication app
+│   ├── models.py         # User-related models
+│   ├── views.py          # Auth views (login, register, logout)
+│   └── urls.py           # Auth URL patterns
+├── events/               # Event management app
+│   ├── models.py        # Event, Category, RSVP models
+│   ├── views.py         # Event CRUD views
+│   └── urls.py          # Event URL patterns
+├── config/              # Django project settings
+│   ├── settings.py      # Main settings file
+│   ├── urls.py          # Root URL configuration
+│   └── wsgi.py
+├── templates/           # HTML templates (shared)
+├── static/             # CSS, JS, images
+├── manage.py           # Django management script
+├── run.bat            # Quick start script (Windows)
+├── pyproject.toml     # Python dependencies
+└── .gitmessage.txt    # Commit message template
 ```
 
 ---
