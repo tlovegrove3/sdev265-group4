@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------
+# Conventional Commit Template
+# ---------------------------------------------------------------------
+# Format: <type>(<scope>): <short summary>
+# Example: feat(auth): add JWT-based login
+#
+# <type> options:
+#   feat     - a new feature
+#   fix      - a bug fix
+#   docs     - documentation only
+#   style    - code style (formatting, missing semi-colons, etc)
+#   refactor - code restructuring with no behavior change
+#   perf     - performance improvement
+#   test     - adding or updating tests
+#   build    - build system or dependency changes
+#   ci       - CI/CD configuration changes
+#   chore    - routine maintenance tasks
+#
+# Rules:
+# - use the imperative mood ("add", "fix", "update")
+# - keep the summary under 72 characters
+# - skip punctuation at the end of the first line
+# - wrap body text at 72 characters
+#
+# ---------------------------------------------------------------------
+# Example full message:
+# feat(api): add pagination support
+#
+# Added offset and limit query parameters to the main API endpoints.
+# Updated unit tests and documentation accordingly.
+#
+# BREAKING CHANGE: deprecated old /v1 endpoints.
+# Closes #42
+# ---------------------------------------------------------------------
+
+<type>(<scope>): <short summary>
+
+# Optional body (motivation, reasoning, details)
+
+# Optional footer (BREAKING CHANGE, Closes #issue)
