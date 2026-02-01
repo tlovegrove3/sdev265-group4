@@ -1,0 +1,34 @@
+#!/bin/sh
+#
+# Conventional Commit validator
+# Ensures commits follow: <type>(<scope>): <summary>
+
+commit_msg_file="$1"
+commit_msg=$(head -n1 "$commit_msg_file")
+
+# Allowed types
+types="build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test"
+
+# Regex: <type>(optional-scope): <description>
+pattern="^($types)(\([a-z0-9_-]+\))?: .{1,72}$"
+
+if ! echo "$commit_msg" | grep -Eq "$pattern"; then
+  echo ""
+  echo "❌ Invalid commit message format!"
+  echo "Your commit message was:"
+  echo "  $commit_msg"
+  echo ""
+  echo "Expected format:"
+  echo "  <type>(<scope>): <short summary>"
+  echo ""
+  echo "Allowed types:"
+  echo "  $types"
+  echo ""
+  echo "Example:"
+  echo "  feat(auth): add JWT-based login"
+  echo ""
+  echo "Commit aborted."
+  exit 1
+fi
+
+exit 0
