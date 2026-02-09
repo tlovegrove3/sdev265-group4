@@ -12,3 +12,18 @@ dependencies = [
 dev = [
     "ruff>=0.14.14",
 ]
+
+[tool.ruff]
+fix = true
+line-length = 120
+#"full" | "concise" | "grouped" | "json" | "junit" | "github" | "gitlab" | "pylint" | "azure"
+output-format = "full"
+show-fixes = true
+
+# [tool.ruff.per-file-target-version]
+# Override the project-wide Python version for a developer scripts directory:
+# "scripts/*.py" = "py312"
+
+[tool.ruff.format]
+# Enable reformatting of code snippets in docstrings.
+docstring-code-format = true

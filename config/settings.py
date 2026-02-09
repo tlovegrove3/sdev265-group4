@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Local apps
     "events",
-    "users",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -81,7 +81,22 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
+# ============================================================
+#
+# IMPORTANT: This must be set BEFORE running migrations.
+# If you already ran `migrate` with the default User model,
+# you need to:
+#   1. Delete db.sqlite3
+#   2. Delete all files in accounts/migrations/ EXCEPT __init__.py
+#   3. Delete all files in events/migrations/ EXCEPT __init__.py
+#   4. Run: uv run manage.py makemigrations
+#   5. Run: uv run manage.py migrate
+#
+# This tells Django to use our custom User model instead of
+# the built-in auth.User. Every ForeignKey that references
+# settings.AUTH_USER_MODEL will point to accounts.User.
+# ============================================================
+AUTH_USER_MODEL = "accounts.User"
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
