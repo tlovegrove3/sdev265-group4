@@ -21,7 +21,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ### 2. Clone & Setup
 ```bash
-git clone https://github.com/YourTeam/sdev265-group4.git
+git clone https://github.com/tlovegrove3/sdev265-group4.git
 cd sdev265-group4
 
 # Install dependencies (auto-creates venv)
