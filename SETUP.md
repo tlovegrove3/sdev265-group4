@@ -89,6 +89,7 @@ source .venv/bin/activate
 ```bash
 # Install from pyproject.toml
 pip install -e .
+pip install djangorestframework
 
 # Or if requirements.txt exists
 pip install -r requirements.txt
