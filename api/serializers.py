@@ -6,10 +6,10 @@ class EventSerializer(serializers.ModelSerializer):
     """Converts Event model to/from JSON"""
     class Meta:
         model = Event
-        fields = ['id', 'title', 'description', 'date_time', 'location', 'price', 'creator']
+        fields = ['id', 'title', 'description', 'date_time', 'location', 'price', 'category', 'creator']
 
 class RSVPSerializer(serializers.ModelSerializer):
     """Converts RSVP model to/from JSON"""
     class Meta:
         model = RSVP
-        fields = ['id', 'event', 'user', 'response']
+        fields = ['id', 'event', 'user']
