@@ -3,6 +3,26 @@
 {% block title %}Events — Event Manager{% endblock %}
 
 {% block content %}
-<h1>Events</h1>
-<p>Coming soon.</p>
+<div id="event-list-container" >
+  <div id="filter-container">
+    <label for="filter-label">Filter:</label>
+    <textarea id="search-input" name="filter-name" rows="1" placeholder="Type to filter events...">search</textarea>
+    <select id="filter-category" name="filter-category">
+      <option value="">All Categories</option>
+    </select>
+    <div id="time-filter"></div>
+    <div id="duration-filter"></div>
+    <div id="RSVP-filter"></div>
+    <div id="location-filter"></div>
+    <div id="price-filter"></div>
+  </div>
+  <div id="event-list-container-inner">
+    <label id="event-label">Events:</label>
+    <button id="event-order">Sort Events</button>
+    <button id="create-event-button">Create Event</button>
+  </div>
+  <div id="event-list">
+    <!-- Event_datails will populate here -->
+  </div>
+</div>
 {% endblock %}
