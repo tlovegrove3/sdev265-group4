@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EventForm
@@ -31,6 +32,24 @@ def event_detail(request, pk):
             "is_creator": is_creator,
         },
     )
+
+
+@login_required
+def event_edit(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+
+    if request.user != event.creator:
+        return HttpResponseForbidden("You can only edit your own events.")
+
+    if request.method == "POST":
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            return redirect("events:event_detail", pk=event.pk)
+    else:
+        form = EventForm(instance=event)
+
+    return render(request, "events/event_edit.html", {"form": form, "event": event})
 
 
 def event_list(request):
