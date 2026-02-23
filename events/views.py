@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import EventForm
+from .models import Event
 
 
 @login_required
@@ -12,11 +13,24 @@ def event_create(request):
             event = form.save(commit=False)
             event.creator = request.user
             form.save()
-            return redirect("events:event_list")  # temporary until detail view exists
+            return redirect("events:event_detail", pk=event.pk)
     else:
         form = EventForm()
 
     return render(request, "events/event_create.html", {"form": form})
+
+
+def event_detail(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    is_creator = request.user == event.creator
+    return render(
+        request,
+        "events/event_detail.html",
+        {
+            "event": event,
+            "is_creator": is_creator,
+        },
+    )
 
 
 def event_list(request):
