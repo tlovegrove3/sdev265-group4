@@ -1,45 +1,41 @@
 {% extends "base.html" %}
 
-{% block title %}Edit/Create Events{% endblock %}
+{% block title %}Create Event{% endblock %}
 
 {% block content %}
-<div id="event-form-container" >
-  <div id="top container">
-    <label for="container-title">Create/Edit Event:</label>
-    <button id="cancel-event-button">Cancel Event</button>
-  </div>
-  <div id="form-container">
-    </div id="event-title-container">
-      <label for="event-title-label">Event Title:</label>
-      <input type="text" id="event-title-input" name="event-title" required>
-    </div>
-    <div id="event-date-container">
-      <label for="event-date-label">Event Date:</label>
-      <input type="date" id="event-date-input" name="event-date" required>
-    </div>
-    <div id="event-duration-container">
-      <label for="event-duration-label">Event Duration (hours):</label>
-      <input type="number" id="event-duration-input" name="event-duration" min="1" required>
-    </div>
-    <div id="event-location-container">
-      <label for="event-location-label">Event Location:</label>
-      <input type="text" id="event-location-input" name="event-location" required>
-    </div>
-    <div id="event-price-container">
-      <label for="event-price-label">Event Price:</label>
-      <input type="number" id="event-price-input" name="event-price" min="0" step="0.01" required>
-    </div>
-    <div id="event-catagory-container">
-      <label for="event-catagory-label">Event Catagory:</label>
-      <select id="event-catagory-input" name="event-catagory" required>
-        <option value="">Select a catagory</option>
-      </select>
-    </div>
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Create/Edit Event</h2>
 
-    <textarea id="event-description" name="event-description" rows="4" required>description</textarea>
-    
-    
+        <form method="post">
+          {% csrf_token %}
+
+          {% for field in form %}
+          <div class="mb-3">
+            <label for="{{ field.id_for_label }}" class="form-label">
+              {{ field.label }}
+            </label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="invalid-feedback d-block">
+              {% for error in field.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+            {% endif %}
+            {% if field.help_text %}
+            <div class="form-text">{{ field.help_text }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+
+          <button type="submit" class="btn btn-primary">Create Event</button>
+          <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary ms-2">Cancel</a>
+        </form>
+      </div>
+    </div>
   </div>
-  <button id="save-event-button">Save Event</button>
 </div>
 {% endblock %}
