@@ -36,6 +36,38 @@
         <h5 class="mt-4">Description</h5>
         <p>{{ event.description|linebreaks }}</p>
 
+        <!-- RSVP Section -->
+        <hr>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <h5 class="mb-0">Attendees ({{ attendee_count }})</h5>
+
+          {% if request.user.is_authenticated and not is_creator and event.status != "cancelled" %}
+            {% if has_rsvped %}
+            <form method="post" action="{% url 'events:event_rsvp_cancel' event.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-secondary btn-sm">Cancel RSVP</button>
+            </form>
+            {% else %}
+            <form method="post" action="{% url 'events:event_rsvp' event.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success btn-sm">RSVP</button>
+            </form>
+            {% endif %}
+          {% endif %}
+
+          {% if has_rsvped %}
+          <span class="badge bg-success">You're attending</span>
+          {% endif %}
+        </div>
+
+        {% if attendee_list %}
+        <ul class="list-group mb-3">
+          {% for rsvp in attendee_list %}
+          <li class="list-group-item">{{ rsvp.user.username }} — {{ rsvp.created_at|date:"N j, Y" }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
         {% if is_creator %}
         <hr>
         {% if is_creator %}

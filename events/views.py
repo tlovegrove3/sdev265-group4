@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from .forms import EventForm
-from .models import Event
+from .models import RSVP, Event
 
 
 @login_required
@@ -25,12 +25,26 @@ def event_create(request):
 def event_detail(request, pk):
     event = get_object_or_404(Event, pk=pk)
     is_creator = request.user == event.creator
+
+    attendee_count = event.rsvps.count()
+
+    attendee_list = None
+    if is_creator:
+        attendee_list = event.rsvps.select_related("user").all()
+
+    has_rsvped = False
+    if request.user.is_authenticated:
+        has_rsvped = event.rsvps.filter(user=request.user).exists()
+
     return render(
         request,
         "events/event_detail.html",
         {
             "event": event,
             "is_creator": is_creator,
+            "attendee_count": attendee_count,
+            "attendee_list": attendee_list,
+            "has_rsvped": has_rsvped,
         },
     )
 
@@ -67,6 +81,26 @@ def event_cancel(request, pk):
 
     event.status = Event.Status.CANCELLED
     event.save()
+    return redirect("events:event_detail", pk=event.pk)
+
+
+@login_required
+@require_POST
+def event_rsvp(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+
+    if event.status == Event.Status.CANCELLED:
+        return HttpResponseForbidden("Cannot RSVP to a cancelled event.")
+
+    RSVP.objects.get_or_create(user=request.user, event=event)
+    return redirect("events:event_detail", pk=event.pk)
+
+
+@login_required
+@require_POST
+def event_rsvp_cancel(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+    RSVP.objects.filter(user=request.user, event=event).delete()
     return redirect("events:event_detail", pk=event.pk)
 
 
