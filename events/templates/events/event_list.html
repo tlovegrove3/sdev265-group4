@@ -1,28 +1,198 @@
 {% extends "base.html" %}
+{% load event_tags %}
 
-{% block title %}Events — Event Manager{% endblock %}
+{% block title %}Events — G4 Event Optimizer{% endblock %}
 
 {% block content %}
-<div id="event-list-container" >
-  <div id="filter-container">
-    <label for="filter-label">Filter:</label>
-    <textarea id="search-input" name="filter-name" rows="1" placeholder="Type to filter events...">search</textarea>
-    <select id="filter-category" name="filter-category">
-      <option value="">All Categories</option>
-    </select>
-    <div id="time-filter"></div>
-    <div id="duration-filter"></div>
-    <div id="RSVP-filter"></div>
-    <div id="location-filter"></div>
-    <div id="price-filter"></div>
-  </div>
-  <div id="event-list-container-inner">
-    <label id="event-label">Events:</label>
-    <button id="event-order">Sort Events</button>
-    <button id="create-event-button">Create Event</button>
-  </div>
-  <div id="event-list">
-    <!-- Event_datails will populate here -->
+{% filter_query_string as filter_qs %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Events</h1>
+  {% if user.is_authenticated %}
+    <a href="{% url 'events:event_create' %}" class="btn btn-success">+ Create Event</a>
+  {% endif %}
+</div>
+
+{# ── Filter Panel ── #}
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" action="{% url 'events:event_list' %}">
+      {# Preserve current sort when filtering #}
+      {% if current_sort.field %}
+        <input type="hidden" name="sort" value="{{ current_sort.field }}">
+        <input type="hidden" name="dir" value="{{ current_sort.dir }}">
+      {% endif %}
+
+      <div class="row g-3 align-items-end">
+        {# Category #}
+        <div class="col-md-3">
+          <label for="filter-category" class="form-label">Category</label>
+          <select id="filter-category" name="category" class="form-select">
+            <option value="">All Categories</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}" {% if current_filters.category == cat.id|stringformat:"d" %}selected{% endif %}>
+                {{ cat.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        {# Date From #}
+        <div class="col-md-2">
+          <label for="filter-date-from" class="form-label">From</label>
+          <input type="date" id="filter-date-from" name="date_from"
+                 class="form-control" value="{{ current_filters.date_from }}">
+        </div>
+
+        {# Date To #}
+        <div class="col-md-2">
+          <label for="filter-date-to" class="form-label">To</label>
+          <input type="date" id="filter-date-to" name="date_to"
+                 class="form-control" value="{{ current_filters.date_to }}">
+        </div>
+
+        {# Max Price #}
+        <div class="col-md-2">
+          <label for="filter-price-max" class="form-label">Max Price ($)</label>
+          <input type="number" id="filter-price-max" name="price_max"
+                 class="form-control" step="0.01" min="0"
+                 value="{{ current_filters.price_max }}"
+                 placeholder="Any">
+        </div>
+
+        {# Free Only #}
+        <div class="col-md-1">
+          <div class="form-check mt-4">
+            <input type="checkbox" id="filter-free-only" name="free_only"
+                   class="form-check-input" value="1"
+                   {% if current_filters.free_only %}checked{% endif %}>
+            <label for="filter-free-only" class="form-check-label">Free</label>
+          </div>
+        </div>
+
+        {# Buttons #}
+        <div class="col-md-2 d-flex gap-2">
+          <button type="submit" class="btn btn-primary">Filter</button>
+          <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary">Clear</a>
+        </div>
+      </div>
+
+      {# Auth-only filters #}
+      {% if user.is_authenticated %}
+      <div class="row mt-2">
+        <div class="col-auto">
+          <div class="form-check form-check-inline">
+            <input type="checkbox" id="filter-my-events" name="my_events"
+                   class="form-check-input" value="1"
+                   {% if current_filters.my_events %}checked{% endif %}>
+            <label for="filter-my-events" class="form-check-label">My Events</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input type="checkbox" id="filter-my-rsvps" name="my_rsvps"
+                   class="form-check-input" value="1"
+                   {% if current_filters.my_rsvps %}checked{% endif %}>
+            <label for="filter-my-rsvps" class="form-check-label">My RSVPs</label>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </form>
   </div>
 </div>
+
+{# ── Sort Buttons ── #}
+{#                                                                              #}
+{# Each button cycles: unsorted -> asc -> desc -> unsorted                      #}
+{# We build the URL by preserving current filter params and toggling sort/dir.  #}
+{# The active sort button gets a solid style; others get outline.               #}
+
+<div class="d-flex gap-2 mb-3 align-items-center">
+  <span class="text-muted me-1">Sort by:</span>
+
+  {% with sf=current_sort.field sd=current_sort.dir %}
+    {# --- Date --- #}
+    {% if sf == "date" and sd == "asc" %}
+      <a href="?{{ filter_qs }}&sort=date&dir=desc" class="btn btn-sm btn-primary">Date ▲</a>
+    {% elif sf == "date" and sd == "desc" %}
+      <a href="?{{ filter_qs }}" class="btn btn-sm btn-primary">Date ▼</a>
+    {% else %}
+      <a href="?{{ filter_qs }}&sort=date&dir=asc" class="btn btn-sm btn-outline-primary">Date</a>
+    {% endif %}
+
+    {# --- Price --- #}
+    {% if sf == "price" and sd == "asc" %}
+      <a href="?{{ filter_qs }}&sort=price&dir=desc" class="btn btn-sm btn-primary">Price ▲</a>
+    {% elif sf == "price" and sd == "desc" %}
+      <a href="?{{ filter_qs }}" class="btn btn-sm btn-primary">Price ▼</a>
+    {% else %}
+      <a href="?{{ filter_qs }}&sort=price&dir=asc" class="btn btn-sm btn-outline-primary">Price</a>
+    {% endif %}
+
+    {# --- Location --- #}
+    {% if sf == "location" and sd == "asc" %}
+      <a href="?{{ filter_qs }}&sort=location&dir=desc" class="btn btn-sm btn-primary">Location ▲</a>
+    {% elif sf == "location" and sd == "desc" %}
+      <a href="?{{ filter_qs }}" class="btn btn-sm btn-primary">Location ▼</a>
+    {% else %}
+      <a href="?{{ filter_qs }}&sort=location&dir=asc" class="btn btn-sm btn-outline-primary">Location</a>
+    {% endif %}
+
+    {# --- Attendees --- #}
+    {% if sf == "attendees" and sd == "asc" %}
+      <a href="?{{ filter_qs }}&sort=attendees&dir=desc" class="btn btn-sm btn-primary">Attendees ▲</a>
+    {% elif sf == "attendees" and sd == "desc" %}
+      <a href="?{{ filter_qs }}" class="btn btn-sm btn-primary">Attendees ▼</a>
+    {% else %}
+      <a href="?{{ filter_qs }}&sort=attendees&dir=asc" class="btn btn-sm btn-outline-primary">Attendees</a>
+    {% endif %}
+  {% endwith %}
+</div>
+
+{# ── Event List ── #}
+{% if events %}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for event in events %}
+      <div class="col">
+        <div class="card h-100 {% if event.status == 'cancelled' %}border-danger{% endif %}">
+          <div class="card-body">
+            {% if event.status == "cancelled" %}
+              <span class="badge bg-danger float-end">CANCELLED</span>
+            {% endif %}
+            <h5 class="card-title">
+              <a href="{% url 'events:event_detail' pk=event.pk %}" class="text-decoration-none">
+                {{ event.title }}
+              </a>
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">
+              <span class="badge bg-secondary">{{ event.category.name }}</span>
+            </h6>
+            <p class="card-text mb-1">
+              <strong>Date:</strong> {{ event.date_time|date:"M j, Y g:i A" }}
+            </p>
+            <p class="card-text mb-1">
+              <strong>Location:</strong> {{ event.location }}
+            </p>
+            <p class="card-text mb-1">
+              {% if event.price == 0 %}
+                <span class="text-success fw-bold">Free</span>
+              {% else %}
+                <strong>Price:</strong> ${{ event.price }}
+              {% endif %}
+            </p>
+            <p class="card-text mb-0">
+              <strong>Attendees:</strong> {{ event.attendee_count }}
+            </p>
+          </div>
+          <div class="card-footer text-muted small">
+            Created by {{ event.creator.username }}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info">
+    No events found{% if current_filters.category or current_filters.date_from or current_filters.date_to or current_filters.price_max or current_filters.free_only or current_filters.my_events or current_filters.my_rsvps %} matching your filters. <a href="{% url 'events:event_list' %}">Clear filters</a>{% endif %}.
+  </div>
+{% endif %}
+
 {% endblock %}
